@@ -19,7 +19,7 @@ harmonization process.
 At the start of the pre-harmonization process the raw Secchi disk depth
 WQP dataset contains 3.1 million rows.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 <br>
 
@@ -34,7 +34,7 @@ user-provided text indicating a missing value, currently including:
 0.7 thousand rows are dropped, resulting in a final count of 3.1
 million.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 <br>
 
@@ -59,7 +59,7 @@ drop 10% or more of the available data.
 This step removes 9.2 thousand rows of data, leaving it with 3.1 million
 rows remaining.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 <br>
 
@@ -81,7 +81,7 @@ We next ensure that the media type for all SDD data is
 `"Surface Water"`, `"Water"`, `"Estuary"`, or `NA`. 2075 rows are
 removed. The final row count after this is 3.1 million.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 <br>
 
@@ -129,7 +129,7 @@ failure phrases are not mutually exclusive.
 9.8 thousand rows are removed after detecting failure-related phrases
 and 3.1 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 <br>
 
@@ -145,7 +145,7 @@ which records were modified.
 
 This should not result in a change in rows but we still check: 0 rows
 are removed and 3.1 million rows remain.
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 <br>
 
@@ -165,7 +165,7 @@ so it is labeled here as “Clean MDLs” (“MDL” = Method detection limit).
 
 This should not result in a change in rows but we still check: 0 rows
 are removed and 3.1 million rows remain.
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 <br>
 
@@ -189,7 +189,7 @@ We then used the numeric value (without “\>”) as the record’s
 This should not result in a change in rows but we still check: 0 rows
 are removed and 3.1 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 <br>
 
@@ -239,7 +239,7 @@ the source of the gap filled values:
 This should not result in a change in rows but we still check: 0
 thousand rows are removed and 3.1 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 <br>
 
@@ -255,7 +255,7 @@ dropped.
 51.7 thousand rows are removed. The final row count after this is 3
 million.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 <br>
 
@@ -424,7 +424,7 @@ by `CharacteristicName`:
 
 <br>
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 <br>
 
@@ -466,7 +466,7 @@ depth values were converted to meters (m).
 This should not result in a change in rows but we still check: 0
 thousand rows are removed and 3 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 <br>
 
@@ -483,7 +483,7 @@ taken”.
 
 This process drops 11.6 thousand rows leaving 3 million remaining.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 <br>
 
@@ -516,7 +516,7 @@ We tiered the data as follows:
 This should not result in a change in rows but we still check: 0 rows
 are removed and 3 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 <br>
 
@@ -576,7 +576,7 @@ We create four types of flags:
 This should not result in a change in rows but we still check: 0 rows
 are removed and 3 million rows remain.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 <br>
 
@@ -595,7 +595,7 @@ measurements that correctly describe the aquatic environment.
 
 This process drops 1819 rows leaving 3 million remaining.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 <br>
 
@@ -638,7 +638,7 @@ recorded in the `harmonized_row_count` column.
 0.3 million rows dropped leaving 2.7 million remaining in the final
 harmonized and aggregated Secchi disk depth dataset.
 
-![](/Users/mbrousil/Documents/AquaMatch_documentation/chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](chapters/06_sdd_harmonization_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
 <br>
 

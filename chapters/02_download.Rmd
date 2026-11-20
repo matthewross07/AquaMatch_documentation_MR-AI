@@ -444,6 +444,56 @@ UV Absorption, relative conc. of organic constituents
 
 </tr>
 
+<tr>
+
+<td style="text-align:left;vertical-align: top !important;" rowspan="5">
+
+phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Algae-Phycocyanin
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanins
+</td>
+
+</tr>
+
 </tbody>
 
 </table>
@@ -501,7 +551,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-3-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-3-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within the conterminous United States." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within the conterminous
@@ -537,7 +587,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-4-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-4-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within the state of Alaska." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within the state of
@@ -573,7 +623,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-5-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-5-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within the state of Hawaii." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within the state of
@@ -610,7 +660,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-6-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-6-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within American Samoa." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within American
@@ -646,7 +696,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-7-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-7-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within Guam and the Commonwealth of the Northern Mariana Islands." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within Guam and the
@@ -683,7 +733,7 @@ ggplot() +
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/02_download_files/figure-gfm/unnamed-chunk-8-1.png"
+src="chapters/02_download_files/figure-gfm/unnamed-chunk-8-1.png"
 alt="A map of the spatial distribution of raw data downloaded from the Water Quality Portal within Puerto Rico and the United States Virgin Islands." />
 <figcaption aria-hidden="true">A map of the spatial distribution of raw
 data downloaded from the Water Quality Portal within Puerto Rico and the

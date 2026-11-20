@@ -19,12 +19,15 @@
 default:
   # gmail account to associate with {googledrive} package
   google_email: ""
+  local_drive: FALSE
   # The local directory where the first {targets} pipeline is located (i.e.,
   # the pipeline that runs the download step)
   download_repo_directory: "../AquaMatch_download_WQP/"
   # Use a stable version of the parameter datasets?
+  cdom_use_stable: FALSE
   chl_use_stable: FALSE
   doc_use_stable: FALSE
+  phyco_use_stable: FALSE
   sdd_use_stable: FALSE
   tss_use_stable: FALSE
   tc_use_stable: FALSE
@@ -39,9 +42,12 @@ default:
 # Google Drive in `drive_project_folder`
 use_stable:
   google_email: ""
+  local_drive: FALSE
   download_repo_directory: "../AquaMatch_download_WQP/"
+  cdom_stable_date: "20251211" #YYYYMMDD format
   chl_stable_date: "20240701" #YYYYMMDD format
   doc_stable_date: "20240701" #YYYYMMDD format
+  phyco_stable_date: "" #YYYYMMDD format
   sdd_stable_date: "20240701" #YYYYMMDD format
   tc_stable_date: "20240701" #YYYYMMDD format
   tss_stable_date: "20241205" #YYYYMMDD format
@@ -53,10 +59,12 @@ use_stable:
 # access for the ROSS group Google account.
 admin_update:
   google_email: "therossyndicate@gmail.com"
+  local_drive: FALSE
   download_repo_directory: "../AquaMatch_download_WQP/"
   cdom_stable_date: "20251211" #YYYYMMDD format
   chl_stable_date: "20240701" #YYYYMMDD format
   doc_stable_date: "20240701" #YYYYMMDD format
+  phyco_stable_date: "" #YYYYMMDD format
   sdd_stable_date: "20240701" #YYYYMMDD format
   tc_stable_date: "20240701" #YYYYMMDD format
   tss_stable_date: "20250430" #YYYYMMDD format
@@ -64,4 +72,20 @@ admin_update:
   drive_project_folder: "~/aquamatch_download_wqp/" # folder name must end with "/", 
   # if you use a nested  folder location, you will need to create that folder 
   # structure before using this pipeline
+# Local mirror mode (deauthenticated public Drive fetches + local phycocyanin mirror)
+local_mode:
+  google_email: ""
+  local_drive: TRUE
+  download_repo_directory: "../AquaMatch_download_WQP_MR-AI/"
+  cdom_stable_date: "20251211"
+  chl_stable_date: "20240701"
+  doc_stable_date: "20240701"
+  phyco_use_stable: TRUE
+  phyco_stable_date: "20261120"
+  sdd_stable_date: "20240701"
+  tc_stable_date: "20240701"
+  tss_stable_date: "20250430"
+  general_use_stable: TRUE
+  general_stable_date: "20240701"
+  drive_project_folder: "../drive_mirror/aquamatch_harmonize_wqp/"
 

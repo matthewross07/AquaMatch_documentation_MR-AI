@@ -31,30 +31,63 @@
 retrieve_data <- function(target, id_df, local_folder, stable = TRUE, 
                           google_email, file_type = ".rds", stable_date){
   
-  # Authorize using the google email provided
-  drive_auth(google_email)
-  
   # Local file download location
   local_path <- file.path(local_folder, paste0(target, file_type))
   
   # Make the directory if it does not exist:
-  if(!dir.exists(local_folder)) {dir.create(local_folder)}
+  if(!dir.exists(local_folder)) {dir.create(local_folder, recursive = TRUE)}
   
   # Get file contents of the Google Drive folder specified. Append "stable/"
   # to go to the subfolder.
+  file_name <- if (stable) {
+    paste0(target, "_", stable_date, file_type)
+  } else {
+    paste0(target, file_type)
+  }
   
-  file_name <- paste0(target, "_", stable_date, file_type)
-  
-  # Filter the contents to the file requested and obtain its ID
-  drive_file_id <- id_df %>%
+  # Filter the contents to the file requested and obtain its ID or local path
+  raw_id <- id_df %>%
     filter(name == file_name) %>%
-    pull(id) %>%
-    as_id(.)
+    pull(id)
   
-  # Run the download
-  drive_download(file = drive_file_id,
-                 path = local_path,
-                 overwrite = TRUE)
+  if (length(raw_id) == 0) {
+    stop(sprintf("Could not find file '%s' in id_df.", file_name))
+  }
+  raw_id <- raw_id[1]
+  
+  if (file.exists(raw_id)) {
+    file.copy(from = raw_id, to = local_path, overwrite = TRUE)
+  } else {
+    if (is.null(google_email) || !nzchar(google_email)) {
+      drive_deauth()
+    } else {
+      drive_auth(google_email)
+    }
+    
+    # Run the download, falling back to local mirror copies when restricted
+    tryCatch(
+      drive_download(file = as_id(raw_id),
+                     path = local_path,
+                     overwrite = TRUE),
+      error = function(e) {
+        param_dir <- basename(local_folder)
+        sub_dir <- if (stable) "stable" else ""
+        mirror_candidates <- file.path(
+          "../drive_mirror",
+          c("aquamatch_download_wqp", "aquamatch_harmonize_wqp"),
+          param_dir,
+          sub_dir,
+          file_name
+        )
+        hit <- mirror_candidates[file.exists(mirror_candidates)]
+        if (length(hit) > 0) {
+          file.copy(from = hit[1], to = local_path, overwrite = TRUE)
+        } else {
+          stop(e)
+        }
+      }
+    )
+  }
   
   # Read dataset into pipeline
   if(file_type == ".rds"){

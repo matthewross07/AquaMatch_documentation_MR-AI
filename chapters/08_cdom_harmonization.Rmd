@@ -21,7 +21,7 @@ contains 186.4 thousand rows.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-4-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-4-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -47,7 +47,7 @@ below criteria are met the row is flagged as missing:
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-6-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-6-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -78,7 +78,7 @@ remaining.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-8-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-8-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -583,7 +583,7 @@ thousand.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-11-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-11-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -653,7 +653,7 @@ thousand rows remain.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-13-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-13-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -691,7 +691,7 @@ are removed. The final row count after this is 175.7 thousand.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-15-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-15-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -726,7 +726,7 @@ are removed. The final row count after this is 175.7 thousand.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-17-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-17-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -758,7 +758,7 @@ are removed. The final row count after this is 175.7 thousand.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-19-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-19-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -782,7 +782,7 @@ of instead of removing.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-21-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-21-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -1095,7 +1095,7 @@ because no unit codes were dropped).**
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-24-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-24-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -1115,7 +1115,7 @@ are removed. The final row count after this is 175.7 thousand.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-26-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-26-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -8173,7 +8173,7 @@ The above process drops 0 rows, leaving 175.7 thousand remaining.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-29-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-29-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -8199,7 +8199,7 @@ dropped leaving 175.7 thousand remaining in the harmonized CDOM dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-31-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-31-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -9100,7 +9100,7 @@ dropped leaving 175.7 thousand remaining in the harmonized CDOM dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-34-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-34-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -9117,7 +9117,7 @@ Before finalizing the dataset we check for and remove any depths \>
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-36-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-36-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -9179,7 +9179,7 @@ harmonized and aggregated CDOM dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-38-1.png"
+src="chapters/08_cdom_harmonization_files/figure-gfm/unnamed-chunk-38-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>

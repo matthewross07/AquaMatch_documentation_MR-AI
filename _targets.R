@@ -24,7 +24,7 @@ config_targets <- list(
   tar_target(
     name = p0_harmonization_config,
     # The config package does not like to be used with library()
-    command = config::get(config = "admin_update"),
+    command = config::get(config = "local_mode"),
     cue = tar_cue("always")
   ),
   
@@ -92,6 +92,16 @@ config_targets <- list(
       "p1_wqp_params_cdom_20251211.rds", "1yrt-koyMHOI1h4bjCHdxel2JK4PnTPh8",
       "p2_site_counts_cdom_20251211.rds", "1z0tNj5Yx4HIYo4RnxJtVUWCu6b2oW4j6",
       "p3_documented_drops_cdom_20251211.rds", "1075OOxduJIcikKPgJRRxkSD6a6ztaAce"
+    ),
+    cue = tar_cue("always")
+  ),
+
+  tar_target(
+    name = p2_phyco_drive_ids,
+    command = bind_rows(
+      read_csv(paste0(p0_harmonization_config$download_repo_directory,
+                      "2_download/out/phyco_drive_ids.csv")),
+      read_csv("../AquaMatch_harmonize_WQP_MR-AI/3_harmonize/out/phyco_drive_ids.csv")
     ),
     cue = tar_cue("always")
   ),
@@ -163,6 +173,17 @@ config_targets <- list(
                             google_email = p0_harmonization_config$google_email,
                             stable_date = p0_harmonization_config$cdom_stable_date),
     packages = c("tidyverse", "googledrive")
+  ),
+
+  # Phycocyanin
+  tar_target(
+    name = p1_wqp_params_phyco,
+    command = retrieve_data(target = "p1_wqp_params_phyco",
+                            id_df = p2_phyco_drive_ids,
+                            local_folder = "in/phyco",
+                            google_email = p0_harmonization_config$google_email,
+                            stable_date = p0_harmonization_config$phyco_stable_date),
+    packages = c("tidyverse", "googledrive")
   ),  
   
   # Site counts
@@ -220,6 +241,17 @@ config_targets <- list(
                             stable_date = p0_harmonization_config$cdom_stable_date),
     packages = c("tidyverse", "googledrive")
   ),
+
+  # Phycocyanin
+  tar_target(
+    name = p2_site_counts_phyco,
+    command = retrieve_data(target = "p2_site_counts_phyco",
+                            id_df = p2_phyco_drive_ids,
+                            local_folder = "in/phyco",
+                            google_email = p0_harmonization_config$google_email,
+                            stable_date = p0_harmonization_config$phyco_stable_date),
+    packages = c("tidyverse", "googledrive")
+  ),
   
   # Documentation of dropped rows
   # Chl
@@ -274,6 +306,17 @@ config_targets <- list(
                             local_folder = "in/cdom",
                             google_email = p0_harmonization_config$google_email,
                             stable_date = p0_harmonization_config$cdom_stable_date),
+    packages = c("tidyverse", "googledrive")
+  ),
+
+  # Phycocyanin
+  tar_target(
+    name = p3_documented_drops_phyco,
+    command = retrieve_data(target = "p3_documented_drops_phyco",
+                            id_df = p2_phyco_drive_ids,
+                            local_folder = "in/phyco",
+                            google_email = p0_harmonization_config$google_email,
+                            stable_date = p0_harmonization_config$phyco_stable_date),
     packages = c("tidyverse", "googledrive")
   ),
   
@@ -337,6 +380,35 @@ config_targets <- list(
   tar_file_read(
     name = cdom_misc_flag_table,
     command = "in/cdom/cdom_misc_flag_table.csv",
+    cue = tar_cue("always"),
+    read = read_csv(file = !!.x)
+  ),
+
+  # Phycocyanin unit, tiering, parameter drop, and misc flag tables
+  tar_file_read(
+    name = phyco_unit_table,
+    command = "in/phyco/phyco_unit_table.csv",
+    cue = tar_cue("always"),
+    read = read_csv(file = !!.x)
+  ),
+
+  tar_file_read(
+    name = phyco_tiering_record,
+    command = "in/phyco/phyco_tiering_record.csv",
+    cue = tar_cue("always"),
+    read = read_csv(file = !!.x)
+  ),
+
+  tar_file_read(
+    name = phyco_param_drop_record,
+    command = "in/phyco/phyco_param_drop_record.csv",
+    cue = tar_cue("always"),
+    read = read_csv(file = !!.x)
+  ),
+
+  tar_file_read(
+    name = phyco_misc_flag_table,
+    command = "in/phyco/phyco_misc_flag_table.csv",
     cue = tar_cue("always"),
     read = read_csv(file = !!.x)
   )

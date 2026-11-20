@@ -1,0 +1,3902 @@
+
+<!-- Image settings -->
+
+# Phycocyanin harmonization process
+
+Following the completion of the `{dataRetrieval}` download process
+described previously, the pipeline contains raw WQP data for each
+parameter of interest. Before harmonizing each parameter, we run through
+a series of universal “pre-harmonization” steps to ensure consistent
+column types, site metadata, and time zones across the dataset.
+
+Phycocyanin is a water-soluble phycobiliprotein accessory pigment
+characteristic of freshwater cyanobacteria, exhibiting an in-water
+absorption maximum near 620 nm and fluorescence emission near 645–650 nm
+(Simis et al., 2005; Randolph et al., 2008; Chorus and Welker, 2021).
+The sections below walk through the pre-harmonization and harmonization
+steps for phycocyanin, explaining how incompatible measurement scales
+(mass concentration, relative probe fluorescence, and sensor-estimated
+cell density), misfiled accessory pigments, daily statistical summaries,
+and analytical methodologies are separated, cleaned, tiered, and
+flagged.
+
+## Pre-harmonization of the raw phycocyanin WQP dataset
+
+At the start of the pre-harmonization process the raw phycocyanin WQP
+dataset contains 157.2 thousand rows.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-4-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Missing results
+
+Next, rows flagged as truly missing results are dropped based on
+`"analysis lost"`, `"not analyzed"`, `"not recorded"`,
+`"not collected"`, or `"no measurement taken"` in `ResultCommentText`
+when no measurement value is available.
+
+This step removes 1967 rows of data, leaving 155.3 thousand rows
+remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-6-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Filter status
+
+The final step in pre-harmonization filters `ResultStatusIdentifier` to
+retain only records with status:
+
+- `"Accepted"`
+- `"Final"`
+- `"Historical"`
+- `"Validated"`
+- `"Preliminary"`
+- `NA`
+
+Records marked `"Provisional"` or other non-finalized statuses are
+dropped (766 rows), leaving 154.5 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-8-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+## Harmonization-ready phycocyanin dataset
+
+Once ready for harmonization, the phycocyanin WQP dataset contains the
+following `CharacteristicName`s: Algae-Phycocyanin, Phycocyanin,
+Phycocyanin (probe), Phycocyanin (probe relative fluorescence),
+Phycocyanins.
+
+<img src="in/phyco/phyco_stacked_char_names.png" alt="Stacked bar chart with counts of phycocyanin CharacteristicName records" width="650"/>
+
+<br>
+
+### Filter media, non-target pigments, and daily summaries; categorize parameters
+
+In this step, we first recover empty `ResultMeasure.MeasureUnitCode`
+entries from `DetectionQuantitationLimitMeasure.MeasureUnitCode` when
+non-detect rows report their units only in the detection-limit metadata.
+We then apply three domain-specific filters before assigning phycocyanin
+parameter categories:
+
+1.  **Water media filtering**: `ActivityMediaSubdivisionName` must be
+    `"Surface Water"`, `"Water"`, `"Estuary"`, or `NA`, removing
+    `"Ocean Water"`.
+2.  **Non-target pigment exclusion**: WQP submissions occasionally file
+    accessory phycobiliprotein or chlorophyll fluorescence data under
+    phycocyanin `CharacteristicName`s. In particular, estuarine probe
+    records annotated `"YSI - BGA-PE"` (phycoerythrin) in
+    `ResultCommentText` or `ResultAnalyticalMethod.MethodName`, as well
+    as USGS parameter codes for phycoerythrin, allophycocyanin, or
+    `fChl`, are excluded.
+3.  **Daily statistical summary filtering**: Continuous water quality
+    sondes frequently archive multiple daily summary statistics at the
+    same station and date (`"Minimum"`, `"Maximum"`, `"Delta"`,
+    `"Median"`, and `"Mean"`). Including extremes alongside central
+    tendencies would collapse spreads into site averages during
+    downstream aggregation, so we drop non-central statistical summaries
+    while retaining instantaneous (`NA`) and daily `"Mean"` records
+    (which are subsequently flagged in `misc_flag`).
+
+Because optical *in vivo* relative fluorescence units (`RFU`/`IVFU`) and
+sensor-estimated cell counts (`#/mL`) cannot be converted to phycocyanin
+mass concentration (`ug/L`) without empirical, taxon- and
+instrument-specific calibrations (Bertone et al., 2018; Foster et al.,
+2022), surviving records are separated into three incompatible
+`parameter` groups:
+
+<!-- Table created with https://www.tablesgenerator.com/markdown_tables -->
+
+| Parameter | Definition |
+|----|----|
+| Phycocyanin | Phycocyanin mass concentration records with `ResultMeasure.MeasureUnitCode` in `"ug/l"`, `"ug/L"`, `"mg/m3"`, `"ppb"`, `"mg/l"`, `"mg/L"`, `"ppm"`, `"ug/ml"`, `"ug/mL"`, or `"mg/cm3"` |
+| Phycocyanin relative fluorescence | Optical *in vivo* probe relative fluorescence records with units `"RFU"` or `"IVFU"` |
+| Phycocyanin cell density | Cyanobacterial cell-density equivalents derived from phycocyanin assays or calibrated sensors with units `"#/mL"`, `"#/ml"`, or `"cells/mL"` |
+
+<br>
+
+Records excluded by the media, non-target pigment, or daily summary
+statistic filters are dropped (`n =` 82,840). A summary of excluded
+records is shown below:
+
+``` r
+param_drop_record %>%
+  kable() %>%
+  kable_paper() %>%
+  scroll_box(width = "750px", height = "450px")
+```
+
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; overflow-x: scroll; width:750px; ">
+
+<table class=" lightable-paper" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+CharacteristicName
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodName
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+USGSPCode
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodIdentifier
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodIdentifierContext
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultMeasure.MeasureUnitCode
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultSampleFractionText
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+n
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+60113
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Water Quality Sonde
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+EXO WQ sonde
+</td>
+
+<td style="text-align:left;">
+
+YSI
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+10245
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+9728
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2494
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Water Quality Sonde
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+EXO WQ sonde
+</td>
+
+<td style="text-align:left;">
+
+YSI
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+260
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<br>
+
+Below is a stacked barplot of the dataset organized by the assigned
+`parameter` column:
+
+<img src="in/phyco/phyco_stacked_param_names.png" alt="Stacked bar chart with counts of phycocyanin parameter records" width="650"/>
+
+82.8 thousand rows are removed, leaving 71.7 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-11-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Document and remove fails
+
+In this step we filter out records containing failure or
+sensor-malfunction language across `ActivityCommentText`,
+`ResultLaboratoryCommentText`, `ResultCommentText`,
+`ResultDetectionConditionText`, and `ResultMeasureValue_original` (the
+character copy of `ResultMeasureValue` prior to numeric coercion).
+
+After auditing phycocyanin-specific WQP comment strings to exclude
+benign environmental notes (such as `"DO probe unstable"`, `"warm day"`,
+`"broken clouds"`, or unrelated selenium/pH regulatory exceedances), we
+match the following case-insensitive phrases: `"beyond accept"`,
+`"cancelled"`, `"contaminat"`, `"error"`, `"fail"`, `"improper"`,
+`"instrument down"`, `"interference"`, `"invalid"`, `"no result"`,
+`"no sample"`, `"no test"`, `"not accept"`, `"outside of accept"`,
+`"problem"`, `"questionable"`, `"suspect"`, `"unable"`, `"violation"`,
+`"reject"`, `"no data"`, `"value extrapolated"`, `"criteria exceed"`,
+`"biased"`, `"parameter not required"`, `"not visited"`,
+`"warm sample"`, `"broken bottle"`, `"broken cooler"`,
+`"received broken"`, `"broken sensor"`, `"time not documented"`,
+`"wiper stopped"`, `"wiper not parked"`, `"sonde out of water"`,
+`"sonde stopped recording"`, `"stopped working"`, `"not working"`,
+`"off scale"`, and `"censored"`.
+
+Below are pie charts summarizing failure phrase detections for each
+column that contained matches (note that detections are not mutually
+exclusive):
+
+<br>
+
+#### ActivityCommentText fail detects
+
+<img src="in/phyco/phyco_ActivityCommentText_fail_pie.png" alt="ActivityCommentText failure detects" width="650"/>
+
+#### ResultCommentText fail detects
+
+<img src="in/phyco/phyco_ResultCommentText_fail_pie.png" alt="ResultCommentText failure detects" width="650"/>
+
+#### ResultLaboratoryCommentText fail detects
+
+<img src="in/phyco/phyco_ResultLaboratoryCommentText_fail_pie.png" alt="ResultLaboratoryCommentText failure detects" width="650"/>
+
+#### ResultMeasureValue_original fail detects
+
+<img src="in/phyco/phyco_ResultMeasureValue_original_fail_pie.png" alt="ResultMeasureValue_original failure detects" width="650"/>
+
+<br>
+
+524 rows are removed after detecting failure-related phrases and 71.1
+thousand rows remain.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-13-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Clean MDLs
+
+Method detection limits (MDLs) are cleaned identically to prior
+AquaMatch parameters. Where numeric values are `NA`, non-detect
+indicators (`"non-detect"`, `"not detect"`, `"non detect"`,
+`"undetect"`, `"below"`, `"Present <QL"`, `"ND"`, `"nd"`) trigger
+substitution from `DetectionQuantitationLimitMeasure.MeasureValue`, and
+`<` numeric qualifiers in `ResultMeasureValue_original` are parsed
+directly. Imputed non-detects are drawn uniformly between `0` and
+`0.5 * MDL`, while preserving units from
+`DetectionQuantitationLimitMeasure.MeasureUnitCode` when
+`ResultMeasure.MeasureUnitCode` is blank.
+
+The `mdl_flag` column records `0` (unadjusted at/above MDL), `1`
+(imputed using EPA `0` to `0.5 * MDL`), or `2` (reported numeric value
+below MDL, unadjusted).
+
+This step drops 0 rows, leaving 71.1 thousand remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-15-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Clean approximate values
+
+Records with missing numeric `ResultMeasureValue` that contain numeric
+text and approximation phrases (`"result approx"`, `"RESULT IS APPROX"`,
+`"value approx"`) are cleaned and flagged (`approx_flag = 1`), while
+unadjusted rows receive `approx_flag = 0`.
+
+This step drops 0 rows, leaving 71.1 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-17-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Clean values with “greater than” data
+
+Similarly, unadjusted records containing `>` qualifiers and numeric text
+are parsed by stripping `>`, `=`, and `*` characters
+(`greater_flag = 1`), leaving all other records with `greater_flag = 0`.
+
+0 rows are removed, leaving 71.1 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-19-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Drop unresolved NA and negative measurements
+
+Following non-detect, approximate, and greater-than recovery, remaining
+unresolved `NA`/`NaN` values and negative measurements
+(`harmonized_value < 0`, which occur primarily as zero-offset baseline
+drift on continuous optical sondes) are removed because neither pigment
+concentrations, positive relative fluorescence, nor cell counts can be
+physically negative.
+
+4224 rows are removed, leaving 66.9 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-21-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Harmonize record units
+
+Each parameter group is converted to a single canonical unit using the
+conversion table below: mass concentrations (`ug/l`, `ug/L`, `mg/m3`,
+`ppb`, `mg/L`, `mg/l`, `ppm`, `ug/ml`, `ug/mL`, `mg/cm3`) convert to
+`"ug/L"`; relative fluorescence units retain `"RFU"` or `"IVFU"`; and
+cell-density units (`#/mL`, `#/ml`, `cells/mL`) normalize to `"#/mL"`.
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; width: auto !important; margin-left: auto; margin-right: auto;">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+ResultMeasure.MeasureUnitCode
+</th>
+
+<th style="text-align:left;">
+
+harmonized_units
+</th>
+
+<th style="text-align:left;">
+
+conversion
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+mg/l
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1000
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+mg/L
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1000
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ppm
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1000
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+mg/m3
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ppb
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+mg/cm3
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1e+06
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ug/ml
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1000
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+ug/mL
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+1000
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+\#/ml
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+cells/mL
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+1
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<br>
+
+0 rows are removed due to unconvertible unit codes (all surviving rows
+mapped cleanly onto the unit conversion table), leaving 66.9 thousand
+rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-24-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Clean depth data
+
+The four WQP depth columns are standardized to meters and summarized via
+`depth_flag` as documented in the *Tiering, flagging, and quality
+control philosophy* chapter (`0` = no depth, `1` = discrete depth, `2` =
+integrated top/bottom depths, `3` = both discrete and integrated depths
+present).
+
+0 rows are removed, leaving 66.9 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-26-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Filter and tier methods
+
+In preparation for tiering, clearly misassigned non-phycocyanin
+laboratory methods (e.g., Standard Methods `4500-P B` phosphorus sample
+preparation) are filtered out. Remaining records are assigned to three
+analytical method tiers reflecting cross-provider comparability and
+vulnerability to optical matrix artifacts:
+
+<br>
+
+<!-- Table created with https://www.tablesgenerator.com/markdown_tables -->
+
+| Tier | Name | Description | Phycocyanin Details |
+|----|----|----|----|
+| 0 | Restrictive | Data that are verifiably self-similar across organizations and time-periods and can be considered highly reliable | Laboratory extractive benchtop fluorometry, spectrophotometry, and HPLC (`ug/L`; e.g., USGS p-code `52905` / `SP012` / `FL083`, `MNPCA` modified Otsuki et al. (1994), `MDEQ_WQ_WQX` HPLC). Cell lysis extracts pigment into solution, eliminating *in vivo* cellular packaging, light history/quenching, and temperature effects (Horváth et al., 2013; Kasinak et al., 2015). |
+| 1 | Narrowed | Data with documented instrumentation/SOPs that may exhibit matrix-dependent bias across deployments | Documented *in situ* optical fluorometric probes/sondes (`YSI EXO`, `YSI 6131`, `Multiparameter Water Quality Sonde`, USGS p-codes `32319`, `32321`, `32329`, `32335`, `95201`–`95204`) and documented optical lab fluorometry/spectrometry lacking explicit extraction confirmation. Subject to inverse temperature quenching (~1% per deg C; Watras et al., 2017), turbidity attenuation, and FDOM/chlorophyll-*a* spectral cross-talk (Zamyadi et al., 2012; Bertone et al., 2018; Foster et al., 2022). |
+| 2 | Inclusive | Records with missing, generic (`LOCAL`, `Unknown`), or misapplied method metadata | Unspecified methods (`NA`), adapted chlorophyll-*a* method identifiers (`445.0` on phycocyanin probes), or unverified probe entries without instrument/SOP metadata. |
+
+<br>
+
+Notice in `in/phyco/phyco_tiering_record.csv` how each unique
+combination of `CharacteristicName`, analytical method, USGS p-code,
+unit, and sample fraction maps onto Tiers 0–2:
+
+``` r
+tiering_record %>%
+  kable() %>%
+  kable_paper() %>%
+  scroll_box(width = "750px", height = "450px")
+```
+
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; overflow-x: scroll; width:750px; ">
+
+<table class=" lightable-paper" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto;">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+parameter
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+CharacteristicName
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodName
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+USGSPCode
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodIdentifier
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultAnalyticalMethod.MethodIdentifierContext
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultMeasure.MeasureUnitCode
+</th>
+
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+
+ResultSampleFractionText
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+tier
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+min_value
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+max_value
+</th>
+
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+
+n
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.759000e+01
+</td>
+
+<td style="text-align:right;">
+
+8642
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Water Quality Sonde
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+EXO WQ sonde
+</td>
+
+<td style="text-align:left;">
+
+YSI
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+5.552417e+01
+</td>
+
+<td style="text-align:right;">
+
+8317
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.754000e+01
+</td>
+
+<td style="text-align:right;">
+
+7623
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.000000e+06
+</td>
+
+<td style="text-align:right;">
+
+6183
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanins
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+32321
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+3.620000e+01
+</td>
+
+<td style="text-align:right;">
+
+5938
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.021430e+02
+</td>
+
+<td style="text-align:right;">
+
+5494
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanins
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+32319
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.990000e+04
+</td>
+
+<td style="text-align:right;">
+
+4948
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanins
+</td>
+
+<td style="text-align:left;">
+
+YSI EXO, 590/685/40 nm
+</td>
+
+<td style="text-align:right;">
+
+32319
+</td>
+
+<td style="text-align:left;">
+
+FL035
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0100000
+</td>
+
+<td style="text-align:right;">
+
+8.130000e+00
+</td>
+
+<td style="text-align:right;">
+
+4148
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanins
+</td>
+
+<td style="text-align:left;">
+
+YSI EXO, 590/685/40 nm
+</td>
+
+<td style="text-align:right;">
+
+32321
+</td>
+
+<td style="text-align:left;">
+
+FL035
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0400000
+</td>
+
+<td style="text-align:right;">
+
+1.500000e+01
+</td>
+
+<td style="text-align:right;">
+
+4079
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+6.800000e+01
+</td>
+
+<td style="text-align:right;">
+
+2153
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+8.507000e+02
+</td>
+
+<td style="text-align:right;">
+
+1764
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.107760e+06
+</td>
+
+<td style="text-align:right;">
+
+1508
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+95204
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.290000e+02
+</td>
+
+<td style="text-align:right;">
+
+1482
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.708000e+01
+</td>
+
+<td style="text-align:right;">
+
+1170
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.253000e+01
+</td>
+
+<td style="text-align:right;">
+
+1134
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+95202
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+\#/ml
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+5.826000e+05
+</td>
+
+<td style="text-align:right;">
+
+443
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+52905
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+Dissolved
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.300000e+02
+</td>
+
+<td style="text-align:right;">
+
+204
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+YSI 6131 BGA-PC sensor
+</td>
+
+<td style="text-align:right;">
+
+95202
+</td>
+
+<td style="text-align:left;">
+
+ALG02
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+\#/ml
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+3.316070e+05
+</td>
+
+<td style="text-align:right;">
+
+179
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+YSI 6131 BGA-PC sensor
+</td>
+
+<td style="text-align:right;">
+
+95204
+</td>
+
+<td style="text-align:left;">
+
+ALG02
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.330000e+02
+</td>
+
+<td style="text-align:right;">
+
+174
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycobiliproteins,wf,spec(CAWSC)
+</td>
+
+<td style="text-align:right;">
+
+52905
+</td>
+
+<td style="text-align:left;">
+
+SP012
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+Dissolved
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+0.2027595
+</td>
+
+<td style="text-align:right;">
+
+4.100000e+04
+</td>
+
+<td style="text-align:right;">
+
+153
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe)
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Water Quality Sonde
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+EXO WQ sonde
+</td>
+
+<td style="text-align:left;">
+
+YSI
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+None
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.118000e+02
+</td>
+
+<td style="text-align:right;">
+
+130
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Algae-Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0500000
+</td>
+
+<td style="text-align:right;">
+
+1.244900e+02
+</td>
+
+<td style="text-align:right;">
+
+125
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+8.746000e+03
+</td>
+
+<td style="text-align:right;">
+
+118
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+McGlynn Laboratories, Inc. Method for Phycocyanin using UV/VIS
+Spectrometry
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+MCGLYNN METHOD-PC
+</td>
+
+<td style="text-align:left;">
+
+LADEQWPD_WQX
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+2.3000000
+</td>
+
+<td style="text-align:right;">
+
+3.000000e+01
+</td>
+
+<td style="text-align:right;">
+
+116
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin, wf, fluoro(NYWSC)
+</td>
+
+<td style="text-align:right;">
+
+52905
+</td>
+
+<td style="text-align:left;">
+
+FL083
+</td>
+
+<td style="text-align:left;">
+
+USGS
+</td>
+
+<td style="text-align:left;">
+
+ug/l
+</td>
+
+<td style="text-align:left;">
+
+Dissolved
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+3.560000e+01
+</td>
+
+<td style="text-align:right;">
+
+109
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+EPA 445
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+EPA 445
+</td>
+
+<td style="text-align:left;">
+
+AZDEQ_SW
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000141
+</td>
+
+<td style="text-align:right;">
+
+4.040000e+02
+</td>
+
+<td style="text-align:right;">
+
+93
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Fluorometric Analysis of Phycocyanin
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+2338.22A
+</td>
+
+<td style="text-align:left;">
+
+EPA_R7_WQX
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+3.000000e+00
+</td>
+
+<td style="text-align:right;">
+
+89
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin (probe relative fluorescence)
+</td>
+
+<td style="text-align:left;">
+
+445.0 ~ EPA; Chlorophyll and Pheophytin in Algae by Fluorescence
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+445.0
+</td>
+
+<td style="text-align:left;">
+
+USEPA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+4.403000e+01
+</td>
+
+<td style="text-align:right;">
+
+89
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin in Water by Fluorometry
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+FLUOROMETRY
+</td>
+
+<td style="text-align:left;">
+
+MASSDEP
+</td>
+
+<td style="text-align:left;">
+
+mg/m3
+</td>
+
+<td style="text-align:left;">
+
+None
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.1292966
+</td>
+
+<td style="text-align:right;">
+
+1.490000e+02
+</td>
+
+<td style="text-align:right;">
+
+72
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+2.420000e+02
+</td>
+
+<td style="text-align:right;">
+
+67
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+ppb
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.4000000
+</td>
+
+<td style="text-align:right;">
+
+1.900000e+02
+</td>
+
+<td style="text-align:right;">
+
+41
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin method modified from Otsuki et al. 1994
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+USGS PHYCOCYANIN
+</td>
+
+<td style="text-align:left;">
+
+MNPCA
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+Suspended
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+6.150000e+01
+</td>
+
+<td style="text-align:right;">
+
+40
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Field measurement/observation, generic method
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+FLD
+</td>
+
+<td style="text-align:left;">
+
+MNPCA
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:left;">
+
+Total
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+1.870000e+02
+</td>
+
+<td style="text-align:right;">
+
+34
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin by HPLC
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+PHYCOCYANIN-MDEQ-WQ
+</td>
+
+<td style="text-align:left;">
+
+MDEQ_WQ_WQX
+</td>
+
+<td style="text-align:left;">
+
+mg/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+10.3413527
+</td>
+
+<td style="text-align:right;">
+
+2.473180e+02
+</td>
+
+<td style="text-align:right;">
+
+21
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+mg/L
+</td>
+
+<td style="text-align:left;">
+
+NA
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+0.0000000
+</td>
+
+<td style="text-align:right;">
+
+4.500000e+01
+</td>
+
+<td style="text-align:right;">
+
+15
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Sonde
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+WVDEP-Multiparameter Sonde
+</td>
+
+<td style="text-align:left;">
+
+WVDEP_WQX
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:left;">
+
+None
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0300000
+</td>
+
+<td style="text-align:right;">
+
+1.285000e+00
+</td>
+
+<td style="text-align:right;">
+
+7
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+Multiparameter Sonde
+</td>
+
+<td style="text-align:right;">
+
+NA
+</td>
+
+<td style="text-align:left;">
+
+WVDEP-Multiparameter Sonde
+</td>
+
+<td style="text-align:left;">
+
+WVDEP_WQX
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:left;">
+
+None
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+0.0600000
+</td>
+
+<td style="text-align:right;">
+
+1.185000e+00
+</td>
+
+<td style="text-align:right;">
+
+7
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<br>
+
+The method filtering and tiering step drops 1 row(s), leaving 66.9
+thousand remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-29-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Flag based on field methods
+
+Next, `field_flag` cross-checks whether sample collection metadata
+(`ActivityTypeCode`, `SampleCollectionMethod.MethodName`,
+`SampleCollectionEquipmentName`) and `ResultSampleFractionText` agree
+with the assigned analytical tier:
+
+- `field_flag = 0` (**Reasonable**): Extractive lab Tier 0 records
+  collected with discrete water-sampling gear (`grab`, `bottle`,
+  `kemmerer`, `van dorn`, `filter`, `Sample-Routine`), or documented
+  optical Tier 1 sonde records with explicit field/sensor metadata
+  (`Field Msr/Obs`, `Probe/Sensor`, `Sonde`) and non-dissolved fraction.
+- `field_flag = 1` (**Suspect**): Tier 0 records reporting
+  sensor/field-only collection, or Tier 1 optical probe records
+  reporting `"Dissolved"` sample fraction or bottle/grab sampling
+  without documented *in situ* sensor deployment.
+- `field_flag = 2` (**Inconclusive**): Tier 2 records or Tier 0/1
+  records where sample collection metadata are `"Unknown"` or `NA`.
+
+No records are dropped in this step (0 rows dropped), leaving 66.9
+thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-31-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Miscellaneous flag
+
+For phycocyanin, `misc_flag` identifies two distinct data conditions
+that are held out from simultaneous replicate averaging during
+aggregation so end users can filter them explicitly:
+
+- `misc_flag = 0`: Instantaneous/discrete observations within standard
+  surface-water calibration bounds.
+- `misc_flag = 1`: Continuous sonde daily `"Mean"` summary rows
+  (`StatisticalBaseCode == "Mean"`), distinguishing multi-hour temporal
+  averages from instantaneous point observations.
+- `misc_flag = 2`: Extreme bloom/scum concentrations exceeding standard
+  linear optical calibration bounds (`> 2,000 ug/L`, `> 100 RFU` or
+  `IVFU`, or `> 280,000 #/mL`; Bertone et al., 2018; Foster et al.,
+  2022; Chorus and Welker, 2021). Note that records exceeding both
+  criteria receive `misc_flag = 2`.
+
+| **Parameter** | **Units** | **Flag = 1** | **Flag = 2** |
+|----|----|----|----|
+| Phycocyanin | ug/L | `StatisticalBaseCode == "Mean"` | `> 2,000 ug/L` |
+| Phycocyanin relative fluorescence | RFU, IVFU | `StatisticalBaseCode == "Mean"` | `> 100 RFU` or `> 100 IVFU` |
+| Phycocyanin cell density | \#/mL | `StatisticalBaseCode == "Mean"` | `> 280,000 #/mL` |
+
+<br>
+
+<table class=" lightable-paper table" style="font-family: &quot;Arial Narrow&quot;, arial, helvetica, sans-serif; margin-left: auto; margin-right: auto; width: auto !important; margin-left: auto; margin-right: auto;">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+parameter
+</th>
+
+<th style="text-align:left;">
+
+harmonized_units
+</th>
+
+<th style="text-align:right;">
+
+misc_flag
+</th>
+
+<th style="text-align:right;">
+
+n
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+20624
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+6299
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin
+</td>
+
+<td style="text-align:left;">
+
+ug/L
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+359
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+2157
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin cell density
+</td>
+
+<td style="text-align:left;">
+
+\#/mL
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+7
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+1653
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+IVFU
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+3
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:right;">
+
+0
+</td>
+
+<td style="text-align:right;">
+
+21885
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:right;">
+
+1
+</td>
+
+<td style="text-align:right;">
+
+13901
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Phycocyanin relative fluorescence
+</td>
+
+<td style="text-align:left;">
+
+RFU
+</td>
+
+<td style="text-align:right;">
+
+2
+</td>
+
+<td style="text-align:right;">
+
+21
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<br>
+
+0 rows are dropped, leaving 66.9 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-34-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Remove unrealistic values
+
+Prior to finalizing the dataset, we remove physically impossible
+bulk-water phycocyanin mass values above `100,000 ug/L` (`100 mg/L` pure
+phycocyanin protein; reflecting sensor cell-density entries misfiled
+under `ug/L`) while retaining verified dissolved bloom/scum extracts up
+to `41,000 ug/L` under `misc_flag = 2`. We also remove any sampling
+depths `> 592 m`, the maximum lake depth in the United States (Larson,
+1972).
+
+8 rows are removed, leaving 66.9 thousand rows remaining.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-36-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Aggregate simultaneous records
+
+The final step of phycocyanin harmonization aggregates simultaneous
+observations (matching across the 26 grouping columns `parameter`,
+`OrganizationIdentifier`, `MonitoringLocationIdentifier`,
+`MonitoringLocationTypeName`, `ResolvedMonitoringLocationTypeName`,
+`ActivityStartDate`, `ActivityStartTime.Time`,
+`ActivityStartTime.TimeZoneCode`, `harmonized_tz`,
+`harmonized_local_time`, `harmonized_utc`, `ActivityStartDateTime`,
+`harmonized_top_depth_value`, `harmonized_top_depth_unit`,
+`harmonized_bottom_depth_value`, `harmonized_bottom_depth_unit`,
+`harmonized_discrete_depth_value`, `harmonized_discrete_depth_unit`,
+`depth_flag`, `mdl_flag`, `approx_flag`, `greater_flag`, `tier`,
+`field_flag`, `misc_flag`, and `harmonized_units`) into mean values
+(`harmonized_value`), replicate counts (`harmonized_row_count`), and
+coefficients of variation (`harmonized_value_cv`), tagged by
+`subgroup_id` for back-joining with `p3_phyco_preagg_grouped`.
+
+As with CDOM, records with `misc_flag` equal to `1` (daily means) or `2`
+(extreme bloom/scum values exceeding calibration ceilings) are held out
+from grouping and re-appended with `NA` in `subgroup_id`,
+`harmonized_row_count`, and `harmonized_value_cv`.
+
+3760 rows are aggregated away, leaving 63.1 thousand rows remaining in
+the final harmonized phycocyanin dataset.
+
+<figure>
+<img
+src="chapters/09_phyco_harmonization_files/figure-gfm/unnamed-chunk-38-1.png"
+alt="Bar plot showing the row count update for the current harmonization step." />
+<figcaption aria-hidden="true">Bar plot showing the row count update for
+the current harmonization step.</figcaption>
+</figure>
+
+<br>
+
+### Harmonized phycocyanin
+
+At this point the harmonization of WQP phycocyanin data is complete. The
+figures below summarize the properties of the final aggregated dataset:
+
+1.  Distributions of positive harmonized values and coefficients of
+    variation (CVs) across parameter groups, units, and tiers after
+    simultaneous-record aggregation:
+
+<br>
+
+<img src="in/phyco/phyco_tier_dists_postagg.png" alt="Distribution of phycocyanin values by tier and unit" width="650"/>
+
+<img src="in/phyco/phyco_tier_cv_dists_postagg.png" alt="Distribution of phycocyanin CVs by parameter and tier" width="650"/>
+
+<br>
+
+2.  Geographic distribution of phycocyanin records by parameter and tier
+    across the conterminous United States:
+
+<img src="in/phyco/phyco_tier_hex_map.png" alt="Geographic distribution of phycocyanin records by tier in the conterminous US" width="650"/>
+
+<br>
+
+3.  Temporal distributions across years, months, and days of the week by
+    parameter and tier:
+
+<img src="in/phyco/phyco_year_tier_chart.png" alt="Temporal distribution of phycocyanin records by tier across years" width="650"/>
+
+<img src="in/phyco/phyco_month_tier_chart.png" alt="Temporal distribution of phycocyanin records by tier across months" width="650"/>
+
+<img src="in/phyco/phyco_wday_tier_chart.png" alt="Temporal distribution of phycocyanin records by tier across days of the week" width="650"/>
+
+<br>
+
+4.  Sampling depth distributions (`harmonized_top_depth_value`,
+    `harmonized_bottom_depth_value`, and
+    `harmonized_discrete_depth_value`) by parameter, waterbody type, and
+    tier:
+
+<img src="in/phyco/phyco_tier_top_depth_dist_postagg.png" alt="Distribution of harmonized_top_depth_value by parameter, tier, and location type" width="650"/>
+
+<img src="in/phyco/phyco_tier_bottom_depth_dist_postagg.png" alt="Distribution of harmonized_bottom_depth_value by parameter, tier, and location type" width="650"/>
+
+<img src="in/phyco/phyco_tier_discrete_depth_dist_postagg.png" alt="Distribution of harmonized_discrete_depth_value by parameter, tier, and location type" width="650"/>
+
+<br>

@@ -21,7 +21,7 @@ contains 6 million rows.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-4-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-4-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -48,7 +48,7 @@ million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-6-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-6-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -79,7 +79,7 @@ million rows remaining.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-8-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-8-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -106,7 +106,7 @@ are removed. The final row count after this is 5.8 million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-10-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-10-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -175,7 +175,7 @@ and 5.8 million rows remain.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-12-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-12-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -213,7 +213,7 @@ are removed. The final row count after this is 5.8 million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-14-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-14-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -248,7 +248,7 @@ are removed. The final row count after this is 5.8 million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-16-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-16-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -280,7 +280,7 @@ are removed. The final row count after this is 5.8 million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-18-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-18-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -303,7 +303,7 @@ million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-20-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-20-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -557,7 +557,7 @@ million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-23-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-23-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -577,7 +577,7 @@ are removed. The final row count after this is 4.9 million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-25-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-25-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -666,7 +666,7 @@ row counts corresponded to each method.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-27-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-27-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -692,7 +692,7 @@ dropped leaving 4.9 million remaining in the harmonized TSS dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-29-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-29-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -715,7 +715,7 @@ dropped leaving 4.9 million remaining in the harmonized TSS dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-31-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-31-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -741,7 +741,7 @@ million.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-33-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-33-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
@@ -799,7 +799,7 @@ harmonized and aggregated TSS dataset.
 
 <figure>
 <img
-src="/Users/mbrousil/Documents/AquaMatch_documentation/chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-35-1.png"
+src="chapters/07_tss_harmonization_files/figure-gfm/unnamed-chunk-35-1.png"
 alt="Bar plot showing the row count update for the current harmonization step." />
 <figcaption aria-hidden="true">Bar plot showing the row count update for
 the current harmonization step.</figcaption>
